@@ -428,7 +428,11 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 /* ---------- Página do documento (três "shells", cor configurável) ---------- */
 .doc-page {
   width: 210mm;
-  min-height: 297mm;
+  /* Não é 297mm (altura exata do A4) de propósito: alguns sistemas de
+     impressão reservam uma margem mínima mesmo com @page{margin:0},
+     e mirar no limite exato empurrava até um recibo curto pra uma
+     2ª página quase vazia por causa de uma fração de milímetro. */
+  min-height: 289mm;
   background: #fff;
   color: #232323;
   box-shadow: var(--shadow-pop);
