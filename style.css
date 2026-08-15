@@ -436,7 +436,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
   flex-direction: column;
   font-family: 'Madhuban', 'Poppins', 'Century Gothic', Futura, Avenir, 'Segoe UI', sans-serif;
   position: relative;
-  overflow: hidden;
 }
 
 /* Marca d'água — logo vertical centralizada, bem apagada, atrás do
