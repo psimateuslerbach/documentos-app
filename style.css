@@ -135,6 +135,20 @@ button, input, select, textarea { font-family: inherit; }
 #reset-confirm .form-actions { margin-top: 12px; }
 #reset-confirm .form-actions .btn { flex: 1; margin-top: 0; }
 
+#import-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+#import-section .link-btn { margin-top: 0; }
+#import-block { margin-top: 12px; }
+#import-block input[type="file"] {
+  width: 100%;
+  padding: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 12.5px;
+  background: var(--surface-2);
+}
+#import-block .form-actions { margin-top: 12px; }
+#import-block .form-actions .btn { flex: 1; margin-top: 0; }
+
 /* ---------- Cabeçalho + abas ---------- */
 .app-header {
   background: var(--teal);

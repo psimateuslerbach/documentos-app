@@ -208,6 +208,65 @@ function wireLockScreen() {
     document.getElementById('unlock-error').textContent = '';
     initLockScreen();
   });
+
+  // Exportar/importar o cofre (arquivo .json) — sincronização manual entre
+  // aparelhos, sem servidor: o Mac e o celular não se falam automaticamente,
+  // o Mateus decidiu por esse caminho em vez de nuvem (15/08/2026).
+  document.getElementById('btn-export').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-export');
+    btn.disabled = true;
+    // Recriptografa o estado atual na hora, em vez de confiar que o último
+    // persistir() (assíncrono) já terminou de escrever — sem isso, exportar
+    // logo após editar algo podia baixar um cofre desatualizado.
+    const ok = await salvarCofre(cryptoKey, appData);
+    btn.disabled = false;
+    if (!ok) { alert('Não foi possível preparar o cofre pra exportar.'); return; }
+    const rec = readVaultRecord();
+    const blob = new Blob([JSON.stringify(rec)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `documentos-app-cofre-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('btn-show-import').addEventListener('click', () => {
+    document.getElementById('import-block').hidden = false;
+    document.getElementById('import-warning').hidden = !vaultExists();
+  });
+  document.getElementById('btn-cancel-import').addEventListener('click', () => {
+    document.getElementById('import-block').hidden = true;
+    document.getElementById('import-file').value = '';
+    document.getElementById('import-error').textContent = '';
+  });
+  document.getElementById('import-file').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const err = document.getElementById('import-error');
+    err.textContent = '';
+    if (!file) return;
+    if (vaultExists() && !confirm('Já existe um cofre neste aparelho. Importar vai SUBSTITUIR os dados daqui permanentemente. Continuar?')) {
+      e.target.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const rec = JSON.parse(ev.target.result);
+        if (!rec.salt || !rec.iv || !rec.ciphertext) throw new Error('o arquivo não parece ser um cofre válido');
+        const ok = writeVaultRecord(rec);
+        if (!ok) throw new Error('não foi possível salvar (armazenamento bloqueado neste navegador)');
+        alert('Cofre importado. Use a mesma senha do outro aparelho pra entrar.');
+        location.reload();
+      } catch (err2) {
+        err.textContent = 'Não foi possível importar: ' + err2.message;
+      }
+    };
+    reader.onerror = () => { err.textContent = 'Não foi possível ler o arquivo.'; };
+    reader.readAsText(file);
+  });
 }
 
 // ============================================================
@@ -307,6 +366,7 @@ function renderPacienteForm(pacienteId) {
     detalhesWrap.innerHTML = '';
     if (pac.isMenor) {
       detalhesWrap.appendChild(field('Data de nascimento', mkTextInput(pac.dataNascimento, v => pac.dataNascimento = v, { type: 'date' })));
+      detalhesWrap.appendChild(field('CPF do(a) paciente — opcional', mkTextInput(pac.cpf, v => pac.cpf = v, { placeholder: '000.000.000-00' })));
       detalhesWrap.appendChild(el('label', { text: 'Responsável(is)' }));
       const respList = el('div');
       function renderResps() {

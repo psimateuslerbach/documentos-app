@@ -49,6 +49,20 @@
         </div>
       </div>
     </div>
+
+    <div id="import-section">
+      <button class="link-btn" id="btn-show-import">Importar cofre de outro aparelho</button>
+      <div id="import-block" hidden>
+        <p class="lock-text">Selecione o arquivo baixado em "Baixar cofre" no outro aparelho. Depois de importar, use a mesma senha de lá pra entrar.</p>
+        <p class="lock-warning" id="import-warning" hidden>Já existe um cofre neste aparelho. Importar substitui os dados daqui permanentemente — não tem como desfazer.</p>
+        <label for="import-file">Arquivo do cofre (.json)</label>
+        <input type="file" id="import-file" accept=".json,application/json">
+        <p class="lock-error" id="import-error"></p>
+        <div class="form-actions">
+          <button class="btn btn-secondary" id="btn-cancel-import">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -60,6 +74,7 @@
       <div class="sub">Mateus Lerbach Psicólogo</div>
     </div>
     <div class="spacer"></div>
+    <button class="btn btn-secondary btn-sm" id="btn-export">Baixar cofre</button>
     <button class="btn btn-secondary btn-sm" id="btn-lock">Bloquear</button>
   </header>
 
