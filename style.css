@@ -1,0 +1,616 @@
+/* Fonte oficial da marca (Apresentação-Logo-Mateus-Psico.pdf), servida via
+   jsDelivr direto do repositório open-source (SIL OFL) — só usada nos
+   documentos gerados (.doc-page); a interface do app continua em Poppins. */
+@font-face {
+  font-family: 'Madhuban';
+  font-weight: 400;
+  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Madhuban';
+  font-weight: 500;
+  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-Medium.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Madhuban';
+  font-weight: 600;
+  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-SemiBold.ttf') format('truetype');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Madhuban';
+  font-weight: 700;
+  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-Bold.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  --teal: #0c4e68;
+  --sand: #f4d2ab;
+  --blue: #629add;
+  --verde: #c7d37d;
+  --preto: #353535;
+
+  --bg: #eceeef;
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --border: #e3e5e8;
+  --text: #232323;
+  --text-2: #666b70;
+  --text-3: #9aa0a6;
+  --danger: #b23a3a;
+  --danger-bg: #fdeaea;
+  --danger-border: #f0c2c2;
+  --shadow-soft: 0 2px 14px rgba(12,78,104,0.10);
+  --shadow-pop: 0 8px 30px rgba(20,26,38,.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12181d;
+    --surface: #1b232a;
+    --surface-2: #212b33;
+    --border: #2c3942;
+    --text: #eef1f3;
+    --text-2: #a7b0b6;
+    --text-3: #74808a;
+    --danger: #ff8b7a;
+    --danger-bg: #3a2222;
+    --danger-border: #5a3232;
+    --shadow-soft: 0 2px 14px rgba(0,0,0,.3);
+    --shadow-pop: 0 8px 30px rgba(0,0,0,.5);
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Century Gothic', Futura, Avenir, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button, input, select, textarea { font-family: inherit; }
+
+/* ---------- Tela de senha ---------- */
+#lock-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--teal);
+  padding: 24px;
+}
+.lock-card {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 32px 28px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--shadow-pop);
+  text-align: center;
+}
+.lock-logo { width: 64px; margin: 0 0 18px; display: block; }
+.lock-card h1 { font-size: 19px; color: var(--teal); margin: 0 0 18px; }
+.lock-card label { text-align: left; }
+.lock-card .lock-text { font-size: 13px; color: var(--text-2); line-height: 1.55; margin: 0 0 12px; text-align: left; }
+.lock-warning {
+  font-size: 12.5px;
+  color: #8a5a12;
+  background: #fdf1dc;
+  border: 1px solid #f0d9ad;
+  border-radius: 8px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  text-align: left;
+  margin: 0 0 14px;
+}
+@media (prefers-color-scheme: dark) {
+  .lock-warning { color: #f0c877; background: #3a2f16; border-color: #5a4a24; }
+}
+.lock-error {
+  font-size: 12.5px;
+  color: var(--danger);
+  min-height: 16px;
+  margin: 8px 0 4px;
+  text-align: left;
+}
+.lock-card .btn { margin-top: 14px; }
+.link-btn {
+  display: block;
+  margin: 14px auto 0;
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+#reset-confirm { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+#reset-confirm .form-actions { margin-top: 12px; }
+#reset-confirm .form-actions .btn { flex: 1; margin-top: 0; }
+
+/* ---------- Cabeçalho + abas ---------- */
+.app-header {
+  background: var(--teal);
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-header img { width: 34px; display: block; }
+.app-header .brand-text { line-height: 1.2; }
+.app-header .brand-text .name { font-weight: 700; font-size: 15px; }
+.app-header .brand-text .sub { font-size: 12px; opacity: .85; }
+
+.tab-switch {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.tab-switch button {
+  flex: 0 0 auto;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.tab-switch button.on {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+
+main { max-width: 1320px; margin: 0 auto; padding: 20px; }
+.tab-panel { display: none; }
+.tab-panel.on { display: block; }
+
+/* ---------- Listas (pacientes / documentos) ---------- */
+.list-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.list-toolbar h2 { font-size: 17px; margin: 0; color: var(--teal); }
+.btn {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary { background: var(--teal); color: #fff; }
+.btn-primary:hover { background: #0a3f54; }
+.btn-secondary { background: var(--surface-2); color: var(--text-2); border: 1.5px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+.btn-danger { background: var(--danger-bg); color: var(--danger); border: 1.5px solid var(--danger-border); }
+.btn-danger:hover { filter: brightness(0.95); }
+.btn-block { width: 100%; }
+.btn-sm { padding: 7px 12px; font-size: 12.5px; }
+
+.empty-state {
+  color: var(--text-3);
+  font-size: 14px;
+  padding: 40px 20px;
+  text-align: center;
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1.5px dashed var(--border);
+}
+
+.card-list { display: flex; flex-direction: column; gap: 10px; }
+.card {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+.card:hover { filter: brightness(0.98); }
+.card .card-main { min-width: 0; }
+.card .card-title { font-weight: 600; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card .card-sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+.card .badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--sand);
+  color: #6b4c22;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.card .card-tipo {
+  flex: 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--blue);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.card .chevron { color: var(--text-3); flex: 0 0 auto; }
+
+.filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-row select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* ---------- Formulários ---------- */
+.form-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--shadow-soft);
+  max-width: 640px;
+}
+fieldset { border: none; padding: 0; margin: 0 0 20px; }
+fieldset legend {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--blue);
+  padding: 0 0 8px;
+}
+label { display: block; font-size: 12.5px; color: var(--text-2); margin: 10px 0 4px; }
+label:first-of-type { margin-top: 0; }
+input[type="text"], input[type="number"], input[type="date"], input[type="time"],
+select, textarea {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface-2);
+}
+textarea { resize: vertical; min-height: 60px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); background: var(--surface); }
+.row2 { display: flex; gap: 10px; }
+.row2 > div { flex: 1; min-width: 0; }
+.hint { font-size: 12.5px; color: var(--text-3); line-height: 1.5; margin: 0 0 18px; }
+.hint2 { font-size: 11.5px; color: var(--text-3); line-height: 1.4; margin: 6px 0 0; }
+.checkline { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; }
+.checkline input[type="checkbox"] { width: 16px; height: 16px; }
+.checkline label { margin: 0; font-size: 13px; color: var(--text); }
+
+.toggle-row { display: flex; gap: 8px; margin-top: 4px; }
+.toggle-row button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.toggle-row button.on { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+.sub-row {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 10px;
+}
+.sub-row:first-of-type { margin-top: 0; }
+.remove-row {
+  margin-top: 10px;
+  width: 100%;
+  padding: 7px;
+  border-radius: 7px;
+  border: 1.5px solid var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.add-row-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 9px;
+  border-radius: 8px;
+  border: 1.5px dashed var(--blue);
+  background: transparent;
+  color: var(--blue);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.data-row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.data-row:first-of-type { margin-top: 0; }
+.data-row input { flex: 1; }
+.data-row button {
+  flex: 0 0 auto;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.form-actions { display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap; }
+
+/* ---------- Tela de "Gerar documento": form + preview lado a lado ---------- */
+.gerar-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+}
+.gerar-layout .form-card { flex: 0 0 380px; }
+.gerar-layout .preview-wrap { flex: 1 1 480px; min-width: 0; display: flex; justify-content: center; }
+
+.picker-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.picker-row button {
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.picker-row button.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.picker-row button:disabled { opacity: .4; cursor: not-allowed; }
+
+.cor-row button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.cor-row .swatch {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.15);
+  flex: 0 0 auto;
+}
+.cor-row button.on { background: var(--surface); border-color: var(--text); color: var(--text); box-shadow: 0 0 0 2px var(--text) inset; }
+
+/* ---------- Página do documento (três "shells", cor configurável) ---------- */
+.doc-page {
+  width: 210mm;
+  min-height: 297mm;
+  background: #fff;
+  color: #232323;
+  box-shadow: var(--shadow-pop);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Madhuban', 'Poppins', 'Century Gothic', Futura, Avenir, 'Segoe UI', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Marca d'água — logo vertical centralizada, bem apagada, atrás do
+   conteúdo (z-index negativo = pinta antes do conteúdo em fluxo normal). */
+.doc-page .watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 170mm;
+  z-index: -1;
+  opacity: 0.15;
+  pointer-events: none;
+}
+.doc-page .watermark img { width: 100%; display: block; }
+
+/* As 5 cores da marca (Apresentação-Logo-Mateus-Psico.pdf, página 2) —
+   --doc-accent/--doc-on-accent parametrizam os shells "teal" e "letterhead"
+   abaixo, seguindo exatamente os pareamentos logo/texto mostrados na
+   página 4 do PDF (versões e aplicações): petróleo, azul e preto (escuros)
+   levam logo e texto brancos; areia e verde (claros) levam a variante
+   petróleo da logo e texto petróleo. */
+.doc-page[data-cor="petroleo"] { --doc-accent: #0c4e68; --doc-on-accent: #ffffff; }
+.doc-page[data-cor="azul"] { --doc-accent: #629add; --doc-on-accent: #ffffff; }
+.doc-page[data-cor="preto"] { --doc-accent: #353535; --doc-on-accent: #ffffff; }
+.doc-page[data-cor="areia"] { --doc-accent: #f4d2ab; --doc-on-accent: #0c4e68; }
+.doc-page[data-cor="verde"] { --doc-accent: #c7d37d; --doc-on-accent: #0c4e68; }
+
+/* shell "teal": recibo, cartão de marca cheio */
+.doc-page.shell-teal {
+  background: var(--doc-accent);
+  color: var(--doc-on-accent);
+  padding: 58mm 24mm 22mm 24mm;
+  position: relative;
+}
+.doc-page.shell-teal .logo-block {
+  position: absolute; top: 15mm; right: 16mm; width: 50mm; text-align: right;
+}
+.doc-page.shell-teal .logo-block img { width: 100%; display: block; }
+.doc-page.shell-teal .doc-title { font-size: 30pt; font-weight: 700; margin: 0 0 10mm; }
+.doc-page.shell-teal .corpo p { font-size: 12.5pt; font-weight: 500; line-height: 1.65; margin: 0; }
+.doc-page.shell-teal .local-data { font-size: 12.5pt; font-weight: 500; margin: 8mm 0 0; }
+.doc-page.shell-teal .signature-area { margin-top: auto; padding-top: 30mm; text-align: center; }
+.doc-page.shell-teal .sig-block { width: 90mm; margin: 0 auto; }
+.doc-page.shell-teal .sig-block .line { border-top: 1.3pt solid currentColor; margin: 0 0 5mm; }
+.doc-page.shell-teal .sig-block .sname { font-weight: 700; font-size: 12pt; margin: 0 0 2mm; }
+.doc-page.shell-teal .sig-block .ssub { font-weight: 400; font-size: 11pt; opacity: .85; margin: 0; }
+
+/* shell "letterhead": timbrado, faixa colorida no topo + corpo branco */
+.doc-page.shell-letterhead .band {
+  background: var(--doc-accent);
+  padding: 9mm 16mm;
+  display: flex; align-items: center; justify-content: flex-end;
+}
+.doc-page.shell-letterhead .band img { width: 45mm; display: block; }
+.doc-page.shell-letterhead .doc-body { padding: 16mm 22mm 18mm; flex: 1; display: flex; flex-direction: column; }
+.doc-page.shell-letterhead .doc-title {
+  font-size: 15pt; font-weight: 700; color: var(--teal);
+  text-align: center; text-transform: uppercase; letter-spacing: .02em;
+  margin: 0 0 2mm;
+}
+.doc-page.shell-letterhead.has-subtitle .doc-title { margin-bottom: 2mm; }
+.doc-page.shell-letterhead .doc-subtitle {
+  font-size: 10.5pt; font-weight: 500; color: #555;
+  text-align: center; margin: 0 0 8mm;
+}
+.doc-page.shell-letterhead .corpo p, .doc-page.shell-letterhead .abertura {
+  font-size: 11pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
+}
+.doc-page.shell-letterhead .clause { break-inside: avoid; margin-bottom: 2mm; }
+.doc-page.shell-letterhead .clause .clause-title {
+  font-weight: 700; color: var(--teal); font-size: 10.8pt; margin: 0 0 1.5mm;
+}
+.doc-page.shell-letterhead .clause p { font-size: 10.8pt; line-height: 1.65; margin: 0; text-align: justify; }
+.doc-page.shell-letterhead .local-data { margin-top: 4mm; font-size: 11pt; }
+.doc-page.shell-letterhead .signature-area {
+  margin-top: auto; padding-top: 18mm;
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8mm 10mm;
+  break-inside: avoid;
+}
+.doc-page.shell-letterhead .sig-block { text-align: center; width: 78mm; break-inside: avoid; }
+.doc-page.shell-letterhead .sig-block .line { border-top: 1pt solid #333; margin: 0 0 3mm; }
+.doc-page.shell-letterhead .sig-block .sname { font-weight: 700; font-size: 10.5pt; margin: 0 0 1mm; }
+.doc-page.shell-letterhead .sig-block .ssub { font-size: 9.5pt; color: #555; margin: 0; }
+
+/* shell "minimal": versão branca — logo pequena no canto superior esquerdo,
+   sem faixa de cor nenhuma, só a tinta petróleo nos títulos. */
+.doc-page.shell-minimal {
+  background: #fff;
+  color: #232323;
+}
+.doc-page.shell-minimal .header-min {
+  padding: 16mm 22mm 0;
+  display: flex;
+  justify-content: flex-end;
+}
+.doc-page.shell-minimal .header-min img { width: 42mm; display: block; }
+.doc-page.shell-minimal .doc-body { padding: 10mm 22mm 18mm; flex: 1; display: flex; flex-direction: column; }
+.doc-page.shell-minimal .doc-title {
+  font-size: 15pt; font-weight: 700; color: var(--teal);
+  text-align: center; text-transform: uppercase; letter-spacing: .02em;
+  margin: 0 0 2mm;
+}
+.doc-page.shell-minimal.has-subtitle .doc-title { margin-bottom: 2mm; }
+.doc-page.shell-minimal .doc-subtitle {
+  font-size: 10.5pt; font-weight: 500; color: #555;
+  text-align: center; margin: 0 0 8mm;
+}
+.doc-page.shell-minimal .corpo p, .doc-page.shell-minimal .abertura {
+  font-size: 11pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
+}
+.doc-page.shell-minimal .clause { break-inside: avoid; margin-bottom: 2mm; }
+.doc-page.shell-minimal .clause .clause-title {
+  font-weight: 700; color: var(--teal); font-size: 10.8pt; margin: 0 0 1.5mm;
+}
+.doc-page.shell-minimal .clause p { font-size: 10.8pt; line-height: 1.65; margin: 0; text-align: justify; }
+.doc-page.shell-minimal .local-data { margin-top: 4mm; font-size: 11pt; }
+.doc-page.shell-minimal .signature-area {
+  margin-top: auto; padding-top: 18mm;
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 8mm 10mm;
+  break-inside: avoid;
+}
+.doc-page.shell-minimal .sig-block { text-align: center; width: 78mm; break-inside: avoid; }
+.doc-page.shell-minimal .sig-block .line { border-top: 1pt solid #333; margin: 0 0 3mm; }
+.doc-page.shell-minimal .sig-block .sname { font-weight: 700; font-size: 10.5pt; margin: 0 0 1mm; }
+.doc-page.shell-minimal .sig-block .ssub { font-size: 9.5pt; color: #555; margin: 0; }
+
+/* "Branco" representando o recibo (from-teal) usa a MESMA formatação de
+   texto do recibo colorido — maior, à esquerda, sem caixa alta — em vez da
+   formatação dos outros 3 documentos (timbrado: centralizado, caixa alta). */
+.doc-page.shell-minimal.from-teal .doc-title {
+  font-size: 30pt; text-align: left; text-transform: none; letter-spacing: normal;
+}
+.doc-page.shell-minimal.from-teal .corpo p {
+  font-size: 12.5pt; font-weight: 500; line-height: 1.65; text-align: left;
+}
+.doc-page.shell-minimal.from-teal .local-data { font-size: 12.5pt; font-weight: 500; }
+.doc-page.shell-minimal.from-teal .sig-block { width: 90mm; }
+.doc-page.shell-minimal.from-teal .sig-block .sname { font-size: 12pt; }
+.doc-page.shell-minimal.from-teal .sig-block .ssub { font-weight: 400; font-size: 11pt; opacity: .85; }
+
+/* ---------- Modal de visualização/edição de documento ---------- */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(10,20,25,.55);
+  z-index: 50;
+  overflow-y: auto;
+  padding: 24px;
+}
+.modal-overlay.on { display: block; }
+.modal-toolbar {
+  max-width: 1320px;
+  margin: 0 auto 16px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.modal-toolbar .spacer { flex: 1; }
+
+@media print {
+  /* Some CSS as visibility:hidden left the app chrome occupying blank space
+     above the printed page — hide it outright instead (same fix as the
+     4 standalone documentos, where width:auto had a similar layout bug). */
+  .app-header, .tab-switch, main { display: none !important; }
+  body { background: #fff; }
+  .modal-overlay {
+    display: block !important;
+    position: static;
+    background: #fff;
+    padding: 0;
+    overflow: visible;
+  }
+  .modal-toolbar { display: none !important; }
+  .doc-page {
+    box-shadow: none;
+    width: 100%;
+    min-height: auto;
+    margin: 0;
+  }
+  .doc-page, .doc-page.shell-teal .sig-block .line {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  @page { size: A4; margin: 0; }
+}
+
+@media (max-width: 720px) {
+  .gerar-layout .form-card { flex: 1 1 100%; }
+  main { padding: 14px; }
+}

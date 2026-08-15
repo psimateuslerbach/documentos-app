@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentos — Mateus Lerbach Psicólogo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="lock-screen">
+  <img src="icons/logo-branco.png" alt="Mateus Lerbach Psicólogo" class="lock-logo">
+  <div class="lock-card">
+    <h1>Documentos</h1>
+
+    <div id="lock-no-crypto" class="lock-warning" hidden>
+      Este navegador não tem suporte a criptografia (Web Crypto). O app não pode abrir com segurança aqui — tente em um navegador atualizado (Chrome, Safari ou Firefox recentes).
+    </div>
+
+    <div id="lock-create">
+      <p class="lock-text">Primeira vez aqui. Crie uma senha pra proteger os dados — pacientes, documentos e prontuário ficam criptografados com ela.</p>
+      <p class="lock-warning">Guarde essa senha num lugar seguro. Não existe "esqueci minha senha": se perder, os dados ficam inacessíveis pra sempre.</p>
+      <label for="new-pass">Nova senha</label>
+      <input type="password" id="new-pass" autocomplete="new-password">
+      <label for="new-pass-confirm">Confirmar senha</label>
+      <input type="password" id="new-pass-confirm" autocomplete="new-password">
+      <p class="lock-error" id="create-error"></p>
+      <button class="btn btn-primary btn-block" id="btn-create-vault">Criar senha e começar</button>
+    </div>
+
+    <div id="lock-unlock" hidden>
+      <p class="lock-text">Digite sua senha pra entrar.</p>
+      <label for="unlock-pass">Senha</label>
+      <input type="password" id="unlock-pass" autocomplete="current-password">
+      <p class="lock-error" id="unlock-error"></p>
+      <button class="btn btn-primary btn-block" id="btn-unlock">Entrar</button>
+      <button class="link-btn" id="btn-show-reset">Esqueci minha senha</button>
+
+      <div id="reset-confirm" hidden>
+        <p class="lock-warning">Isso apaga TODOS os dados do app — pacientes, documentos e prontuário — permanentemente. Não tem como desfazer.</p>
+        <label for="reset-confirm-input">Digite APAGAR TUDO pra confirmar</label>
+        <input type="text" id="reset-confirm-input">
+        <div class="form-actions">
+          <button class="btn btn-danger" id="btn-confirm-reset">Apagar tudo e recomeçar</button>
+          <button class="btn btn-secondary" id="btn-cancel-reset">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="app-shell" hidden>
+  <header class="app-header">
+    <img src="icons/logo-branco.png" alt="Mateus Lerbach Psicólogo">
+    <div class="brand-text">
+      <div class="name">Documentos</div>
+      <div class="sub">Mateus Lerbach Psicólogo</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-secondary btn-sm" id="btn-lock">Bloquear</button>
+  </header>
+
+  <nav class="tab-switch" id="tab-switch">
+    <button class="on" data-tab="pacientes">Pacientes</button>
+    <button data-tab="gerar">Gerar documento</button>
+    <button data-tab="prontuario">Prontuário</button>
+    <button data-tab="documentos">Documentos salvos</button>
+  </nav>
+
+  <main>
+    <section class="tab-panel on" id="panel-pacientes"></section>
+    <section class="tab-panel" id="panel-gerar"></section>
+    <section class="tab-panel" id="panel-prontuario"></section>
+    <section class="tab-panel" id="panel-documentos"></section>
+  </main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-toolbar">
+    <span class="spacer"></span>
+    <button class="btn btn-primary" id="modal-print">Imprimir / Salvar em PDF</button>
+    <button class="btn btn-secondary" id="modal-close">Fechar</button>
+  </div>
+  <div class="preview-wrap">
+    <div class="doc-page" id="doc-page-render"></div>
+  </div>
+</div>
+
+<script src="crypto.js"></script>
+<script src="templates.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
