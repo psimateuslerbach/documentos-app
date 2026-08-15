@@ -615,6 +615,22 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
     width: 100%;
     min-height: auto;
     margin: 0;
+    /* flex-direction:column não pagina de forma confiável entre folhas —
+       vira bloco normal aqui, só na impressão (documentos de 1 página não
+       mostravam o problema; num documento longo como o termo com 2
+       responsáveis, o navegador chegou a duplicar um título de cláusula
+       bem na quebra de página). Tela continua em flex normalmente. */
+    display: block;
+  }
+  .doc-page.shell-letterhead .doc-body,
+  .doc-page.shell-minimal .doc-body {
+    display: block;
+  }
+  .doc-page .signature-area {
+    /* margin-top:auto só existe dentro de flex — em bloco normal vira 0,
+       então fixamos uma distância em vez de "empurra pro fim da página". */
+    margin-top: 0 !important;
+    padding-top: 14mm !important;
   }
   .doc-page, .doc-page.shell-teal .sig-block .line {
     -webkit-print-color-adjust: exact;
