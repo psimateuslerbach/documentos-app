@@ -24,6 +24,7 @@ function pacienteDefault() {
     nome: '',
     isMenor: false,
     dataNascimento: '',
+    dataInicio: '',
     cpf: '',
     responsaveis: [{ nome: '', cpf: '', parentesco: '' }],
     valorSessao: '',
@@ -357,6 +358,7 @@ function renderPacienteForm(pacienteId) {
   const fsBasico = el('fieldset');
   fsBasico.appendChild(el('legend', { text: 'Identificação' }));
   fsBasico.appendChild(field('Nome completo', mkTextInput(pac.nome, v => pac.nome = v)));
+  fsBasico.appendChild(field('Data de nascimento', mkTextInput(pac.dataNascimento, v => pac.dataNascimento = v, { type: 'date' })));
 
   const toggleRow = el('div', { class: 'toggle-row' });
   const btnAdulto = el('button', { type: 'button', text: 'Adulto', class: pac.isMenor ? '' : 'on' });
@@ -365,7 +367,6 @@ function renderPacienteForm(pacienteId) {
   function renderDetalhes() {
     detalhesWrap.innerHTML = '';
     if (pac.isMenor) {
-      detalhesWrap.appendChild(field('Data de nascimento', mkTextInput(pac.dataNascimento, v => pac.dataNascimento = v, { type: 'date' })));
       detalhesWrap.appendChild(field('CPF do(a) paciente — opcional', mkTextInput(pac.cpf, v => pac.cpf = v, { placeholder: '000.000.000-00' })));
       detalhesWrap.appendChild(el('label', { text: 'Responsável(is)' }));
       const respList = el('div');
@@ -403,6 +404,7 @@ function renderPacienteForm(pacienteId) {
 
   const fsCond = el('fieldset');
   fsCond.appendChild(el('legend', { text: 'Condições de atendimento (usadas como padrão ao gerar documentos)' }));
+  fsCond.appendChild(field('Início da terapia', mkTextInput(pac.dataInicio, v => pac.dataInicio = v, { type: 'date' })));
   fsCond.appendChild(field('Valor por sessão (R$)', mkTextInput(pac.valorSessao, v => pac.valorSessao = v, { type: 'number', step: '0.01', min: '0' })));
   fsCond.appendChild(el('label', { text: 'Modalidade' }));
   fsCond.appendChild(mkSelect([['presencial', 'Presencial'], ['online', 'Online (telepsicologia)']], pac.modalidade, v => pac.modalidade = v));

@@ -132,7 +132,7 @@ const TIPOS_DOCUMENTO = {
     label: 'Comprovante de Atendimento Psicoterapêutico',
     shell: 'letterhead',
     campos: [
-      { id: 'dataInicio', label: 'Início do acompanhamento', tipo: 'date', fonte: 'doc', default: '' },
+      { id: 'dataInicio', label: 'Início do acompanhamento', tipo: 'date', fonte: 'paciente', default: '' },
       { id: 'frequencia', label: 'Frequência das sessões', tipo: 'text', fonte: 'paciente', default: 'semanal' },
       { id: 'modalidade', label: 'Modalidade', tipo: 'modalidade', fonte: 'paciente', default: 'presencial' },
       { id: 'encerrado', label: 'Acompanhamento já encerrado', tipo: 'checkbox', fonte: 'doc', default: false },
