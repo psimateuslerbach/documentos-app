@@ -325,6 +325,31 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 .hint2 { font-size: 11.5px; color: var(--text-3); line-height: 1.4; margin: 6px 0 0; }
 .checkline { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; }
 .checkline input[type="checkbox"] { width: 16px; height: 16px; }
+
+.guia-toggle {
+  display: inline-block;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 12px;
+  color: var(--blue);
+  font-size: 12.5px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.guia-evolucao {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 0 0 16px;
+}
+.guia-evolucao h4 { margin: 0 0 8px; font-size: 12.5px; color: var(--teal); text-transform: uppercase; letter-spacing: 0.04em; }
+.guia-evolucao p { font-size: 12.5px; color: var(--text-2); line-height: 1.55; margin: 0 0 10px; }
+.guia-evolucao ul { margin: 0 0 10px; padding-left: 18px; }
+.guia-evolucao li { font-size: 12.5px; color: var(--text-2); line-height: 1.55; margin: 0 0 6px; }
+.guia-evolucao li b { color: var(--text); }
+.guia-evolucao .guia-sigilo { font-size: 12px; color: var(--text-3); font-style: italic; margin: 10px 0 0; }
 .checkline label { margin: 0; font-size: 13px; color: var(--text); }
 
 .toggle-row { display: flex; gap: 8px; margin-top: 4px; }
@@ -508,6 +533,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 .doc-page.shell-letterhead .corpo p, .doc-page.shell-letterhead .abertura {
   font-size: 11pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
 }
+.doc-page.shell-letterhead .corpo p { white-space: pre-line; }
 .doc-page.shell-letterhead .clause { break-inside: avoid; margin-bottom: 2mm; }
 .doc-page.shell-letterhead .clause .clause-title {
   font-weight: 700; color: var(--teal); font-size: 10.8pt; margin: 0 0 1.5mm;
@@ -550,6 +576,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 .doc-page.shell-minimal .corpo p, .doc-page.shell-minimal .abertura {
   font-size: 11pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
 }
+.doc-page.shell-minimal .corpo p { white-space: pre-line; }
 .doc-page.shell-minimal .clause { break-inside: avoid; margin-bottom: 2mm; }
 .doc-page.shell-minimal .clause .clause-title {
   font-weight: 700; color: var(--teal); font-size: 10.8pt; margin: 0 0 1.5mm;

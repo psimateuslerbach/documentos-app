@@ -756,6 +756,39 @@ function wireModal() {
 // ============================================================
 let prontuarioState = { pacienteId: '' };
 
+// Esqueleto leve pra "evolução livre" (Res. CFP 09/2024) — texto corrido,
+// sem seções obrigatórias; o profissional apaga/reescreve como quiser.
+const MODELO_EVOLUCAO_LIVRE = `[Tema central da sessão]
+
+[O que o paciente trouxe — conteúdo verbal e não verbal, mudanças desde a sessão anterior]
+
+[Observação clínica — afeto, padrões, hipóteses em construção]
+
+[Movimento transferencial e condução — o que foi apontado, para onde a escuta encaminha, combinados]`;
+
+function montarGuiaEvolucaoLivre(onInserir) {
+  const box = el('div', { class: 'guia-evolucao', hidden: '' });
+  box.appendChild(el('h4', { text: 'Guia de escrita — evolução livre' }));
+  box.appendChild(el('p', {
+    text: 'A Resolução CFP nº 09/2024 não exige um formato fixo de registro: pede clareza, objetividade e rigor científico, com data, conteúdo e avaliação clínica presentes. Para quem trabalha em referencial psicanalítico, o formato mais adequado costuma ser a "evolução livre" — texto corrido, sem seções obrigatórias, que sustenta a leitura clínica sem fragmentar o processo em categorias estanques.'
+  }));
+  box.appendChild(el('ul', {}, [
+    el('li', {}, [el('b', { text: 'O que foi trazido' }), ' — tema central, material verbal e não verbal, o que mudou desde a sessão anterior.']),
+    el('li', {}, [el('b', { text: 'Leitura clínica' }), ' — afeto, defesas, padrões que se repetem, hipóteses em construção.']),
+    el('li', {}, [el('b', { text: 'Movimento transferencial' }), ' — o que apareceu na relação, o que foi apontado (ou deliberadamente não apontado).']),
+    el('li', {}, [el('b', { text: 'Condução' }), ' — intervenções feitas, direção que a escuta indica, combinados.']),
+  ]));
+  box.appendChild(el('p', { text: 'Não é transcrição, é síntese com leitura clínica — evite frases como "sessão boa"; nomeie o que de fato foi observado.' }));
+  box.appendChild(el('p', {
+    class: 'guia-sigilo',
+    text: 'Boa parte disso é raciocínio clínico privado — juridicamente mais próximo de "relato de sessão"/registro documental do que do prontuário que um paciente pode solicitar acesso. Vale o mesmo sigilo redobrado.'
+  }));
+  box.appendChild(el('div', { class: 'form-actions' }, [
+    el('button', { class: 'btn btn-secondary btn-sm', text: 'Inserir modelo no campo abaixo', onclick: onInserir })
+  ]));
+  return box;
+}
+
 function renderProntuarioTab() {
   const panel = document.getElementById('panel-prontuario');
   panel.innerHTML = '';
@@ -779,8 +812,25 @@ function renderProntuarioTab() {
   const novaCard = el('div', { class: 'form-card' });
   novaCard.style.margin = '18px 0';
   const novaData = { data: new Date().toISOString().slice(0, 10), texto: '' };
+
+  const ta = mkTextarea(novaData.texto, v => novaData.texto = v, 'Anotação de sessão... (texto livre)');
+  const guiaBox = montarGuiaEvolucaoLivre(() => {
+    if (ta.value.trim() && !confirm('Isso substitui o texto já escrito nesta anotação. Continuar?')) return;
+    novaData.texto = MODELO_EVOLUCAO_LIVRE;
+    ta.value = MODELO_EVOLUCAO_LIVRE;
+    ta.focus();
+  });
+  const guiaToggle = el('button', {
+    class: 'guia-toggle', text: 'Ver guia de escrita (evolução livre)',
+    onclick: () => {
+      guiaBox.hidden = !guiaBox.hidden;
+      guiaToggle.textContent = guiaBox.hidden ? 'Ver guia de escrita (evolução livre)' : 'Ocultar guia de escrita';
+    }
+  });
+  novaCard.appendChild(guiaToggle);
+  novaCard.appendChild(guiaBox);
   novaCard.appendChild(field('Data', mkTextInput(novaData.data, v => novaData.data = v, { type: 'date' })));
-  novaCard.appendChild(field('Anotação', mkTextarea(novaData.texto, v => novaData.texto = v, 'Anotação de sessão...')));
+  novaCard.appendChild(field('Anotação', ta));
   novaCard.appendChild(el('div', { class: 'form-actions' }, [
     el('button', {
       class: 'btn btn-primary', text: '+ Adicionar anotação', onclick: () => {
