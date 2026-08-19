@@ -754,7 +754,7 @@ function wireModal() {
 // ============================================================
 // Aba Prontuário
 // ============================================================
-let prontuarioState = { pacienteId: '' };
+let prontuarioState = { pacienteId: '', editandoId: '' };
 
 // Esqueleto leve pra "evolução livre" (Res. CFP 09/2024) — texto corrido,
 // sem seções obrigatórias; o profissional apaga/reescreve como quiser.
@@ -803,15 +803,23 @@ function renderProntuarioTab() {
   const pacienteOptions = [['', 'Selecione...']].concat(
     [...appData.pacientes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(p => [p.id, p.nome])
   );
-  panel.appendChild(mkSelect(pacienteOptions, prontuarioState.pacienteId, v => { prontuarioState.pacienteId = v; renderProntuarioTab(); }));
+  panel.appendChild(mkSelect(pacienteOptions, prontuarioState.pacienteId, v => { prontuarioState.pacienteId = v; prontuarioState.editandoId = ''; renderProntuarioTab(); }));
 
   if (!prontuarioState.pacienteId) return;
   const paciente = pacienteById(prontuarioState.pacienteId);
   if (!paciente) { prontuarioState.pacienteId = ''; return; }
 
+  const notaEditando = appData.prontuario.find(n => n.id === prontuarioState.editandoId && n.pacienteId === paciente.id) || null;
+  if (prontuarioState.editandoId && !notaEditando) prontuarioState.editandoId = '';
+
   const novaCard = el('div', { class: 'form-card' });
   novaCard.style.margin = '18px 0';
-  const novaData = { data: new Date().toISOString().slice(0, 10), texto: '' };
+  const novaData = notaEditando
+    ? { data: notaEditando.data, texto: notaEditando.texto }
+    : { data: new Date().toISOString().slice(0, 10), texto: '' };
+
+  const fs = el('fieldset');
+  fs.appendChild(el('legend', { text: notaEditando ? `Editando anotação de ${formatarDataBR(notaEditando.data)}` : 'Nova anotação' }));
 
   const ta = mkTextarea(novaData.texto, v => novaData.texto = v, 'Anotação de sessão... (texto livre)');
   const guiaBox = montarGuiaEvolucaoLivre(() => {
@@ -827,21 +835,37 @@ function renderProntuarioTab() {
       guiaToggle.textContent = guiaBox.hidden ? 'Ver guia de escrita (evolução livre)' : 'Ocultar guia de escrita';
     }
   });
-  novaCard.appendChild(guiaToggle);
-  novaCard.appendChild(guiaBox);
-  novaCard.appendChild(field('Data', mkTextInput(novaData.data, v => novaData.data = v, { type: 'date' })));
-  novaCard.appendChild(field('Anotação', ta));
-  novaCard.appendChild(el('div', { class: 'form-actions' }, [
+  fs.appendChild(guiaToggle);
+  fs.appendChild(guiaBox);
+  fs.appendChild(field('Data', mkTextInput(novaData.data, v => novaData.data = v, { type: 'date' })));
+  fs.appendChild(field('Anotação', ta));
+  novaCard.appendChild(fs);
+
+  const botoesForm = [
     el('button', {
-      class: 'btn btn-primary', text: '+ Adicionar anotação', onclick: () => {
+      class: 'btn btn-primary', text: notaEditando ? 'Salvar alterações' : '+ Adicionar anotação', onclick: () => {
         if (!novaData.texto.trim()) { alert('Escreva alguma coisa antes de salvar.'); return; }
-        appData.prontuario.push({ id: uid(), pacienteId: paciente.id, data: novaData.data, texto: novaData.texto, criadoEm: new Date().toISOString() });
+        if (notaEditando) {
+          notaEditando.data = novaData.data;
+          notaEditando.texto = novaData.texto;
+          notaEditando.editadoEm = new Date().toISOString();
+          prontuarioState.editandoId = '';
+        } else {
+          appData.prontuario.push({ id: uid(), pacienteId: paciente.id, data: novaData.data, texto: novaData.texto, criadoEm: new Date().toISOString() });
+        }
         persistir();
         renderProntuarioTab();
       }
     })
-  ]));
+  ];
+  if (notaEditando) {
+    botoesForm.push(el('button', {
+      class: 'btn btn-secondary', text: 'Cancelar', onclick: () => { prontuarioState.editandoId = ''; renderProntuarioTab(); }
+    }));
+  }
+  novaCard.appendChild(el('div', { class: 'form-actions' }, botoesForm));
   panel.appendChild(novaCard);
+  if (notaEditando) novaCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   const notas = appData.prontuario.filter(n => n.pacienteId === paciente.id).sort((a, b) => b.data.localeCompare(a.data) || b.criadoEm.localeCompare(a.criadoEm));
 
@@ -862,11 +886,14 @@ function renderProntuarioTab() {
     const card = el('div', { class: 'card' });
     card.style.cursor = 'default';
     const resumo = nota.texto.length > 140 ? nota.texto.slice(0, 140) + '…' : nota.texto;
+    const tituloChildren = [formatarDataBR(nota.data)];
+    if (nota.editadoEm) tituloChildren.push(el('span', { class: 'edit-tag', text: ` · editado em ${formatarDataBR(nota.editadoEm.slice(0, 10))}` }));
     card.appendChild(el('div', { class: 'card-main' }, [
-      el('div', { class: 'card-title', text: formatarDataBR(nota.data) }),
+      el('div', { class: 'card-title' }, tituloChildren),
       el('div', { class: 'card-sub', text: resumo }),
     ]));
     const acoes = el('div', { style: 'display:flex; gap:6px; flex:0 0 auto;' });
+    acoes.appendChild(el('button', { class: 'btn btn-secondary btn-sm', text: 'Editar', onclick: () => { prontuarioState.editandoId = nota.id; renderProntuarioTab(); } }));
     acoes.appendChild(el('button', { class: 'btn btn-secondary btn-sm', text: 'Imprimir', onclick: () => exportarNotaUnica(paciente, nota) }));
     acoes.appendChild(el('button', { class: 'btn btn-danger btn-sm', text: 'Excluir', onclick: () => { if (!confirm('Excluir esta anotação?')) return; appData.prontuario = appData.prontuario.filter(n => n.id !== nota.id); persistir(); renderProntuarioTab(); } }));
     card.appendChild(acoes);

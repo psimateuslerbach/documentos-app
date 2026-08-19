@@ -246,6 +246,7 @@ main { max-width: 1320px; margin: 0 auto; padding: 20px; }
 .card .card-main { min-width: 0; }
 .card .card-title { font-weight: 600; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card .card-sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+.card .card-title .edit-tag { font-weight: 400; color: var(--text-3); font-size: 11.5px; }
 .card .badge {
   display: inline-block;
   font-size: 10.5px;
