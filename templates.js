@@ -233,4 +233,87 @@ const TIPOS_DOCUMENTO = {
       };
     },
   },
+
+  contrato: {
+    label: 'Contrato de Prestação de Serviço',
+    shell: 'letterhead',
+    campos: [
+      { id: 'modalidade', label: 'Modalidade', tipo: 'modalidade', fonte: 'paciente', default: 'presencial' },
+      { id: 'frequencia', label: 'Frequência das sessões', tipo: 'text', fonte: 'paciente', default: 'semanal' },
+      { id: 'duracaoSessao', label: 'Duração da sessão', tipo: 'text', fonte: 'paciente', default: 'até 50 minutos' },
+      { id: 'valorSessao', label: 'Valor por sessão (R$)', tipo: 'number', fonte: 'paciente', default: 0 },
+      { id: 'formaPagamento', label: 'Forma de pagamento', tipo: 'text', fonte: 'doc', default: 'Pix ou transferência bancária' },
+      { id: 'condicaoPagamento', label: 'Quando o pagamento é feito', tipo: 'text', fonte: 'doc', default: 'ao final de cada mês, referente às sessões realizadas no período' },
+      { id: 'antecedenciaCancelamento', label: 'Antecedência mínima p/ cancelamento', tipo: 'text', fonte: 'doc', default: '24 horas' },
+      { id: 'cidade', label: 'Cidade', tipo: 'text', fonte: 'paciente', default: 'Brasília' },
+      { id: 'dataDocumento', label: 'Data do contrato', tipo: 'date', fonte: 'doc', default: () => new Date().toISOString().slice(0, 10) },
+    ],
+    montar(paciente, perfil, c) {
+      const pacNome = paciente.nome || '[nome do(a) paciente]';
+      const profNome = perfil.nome || '[seu nome]';
+      const profCpf = perfil.cpf || '[seu CPF]';
+      const profCrp = perfil.crp || '[seu CRP]';
+
+      const contratanteIsResp = paciente.isMenor;
+      const resps = contratanteIsResp ? respsPreenchidos(paciente.responsaveis) : [];
+      const listaBase = contratanteIsResp
+        ? (resps.length ? resps : [{ nome: '[nome do responsável]', cpf: '', parentesco: '' }])
+        : [];
+      const denominacao = contratanteIsResp && listaBase.length > 1 ? 'CONTRATANTES' : 'CONTRATANTE';
+      const prep = denominacao === 'CONTRATANTES' ? 'aos(às)' : 'ao(à)';
+
+      let contratanteQualificacao;
+      if (contratanteIsResp) {
+        const partes = listaBase.map(r => {
+          const cpf = (r.cpf && r.cpf.trim()) ? r.cpf.trim() : '[CPF]';
+          const parentesco = (r.parentesco && r.parentesco.trim()) ? r.parentesco.trim() : '[parentesco]';
+          return `${r.nome}, portador(a) do CPF n° ${cpf}, na qualidade de ${parentesco} de ${pacNome}`;
+        });
+        contratanteQualificacao = joinClausulas(partes);
+      } else {
+        const cpfPac = (paciente.cpf && paciente.cpf.trim()) ? paciente.cpf.trim() : '[CPF]';
+        contratanteQualificacao = `${pacNome}, portador(a) do CPF n° ${cpfPac}`;
+      }
+
+      const abertura = `Pelo presente instrumento particular de prestação de serviços psicológicos, de um lado ${profNome}, portador(a) do CPF n° ${profCpf}, inscrito(a) no CRP ${profCrp}, doravante denominado(a) CONTRATADO(A), e de outro lado ${contratanteQualificacao}, doravante denominado(a) ${denominacao}, têm entre si justo e acordado o presente contrato de prestação de serviços psicoterapêuticos, que se regerá pelas cláusulas a seguir.`;
+
+      const modalidadeTexto = c.modalidade === 'online'
+        ? 'por telepsicologia, nos termos da Resolução CFP n° 011/2018'
+        : `de forma presencial, em ${c.cidade || '[cidade]'}`;
+      const freq = (c.frequencia && c.frequencia.trim()) ? c.frequencia.trim() : '[frequência]';
+      const duracao = (c.duracaoSessao && c.duracaoSessao.trim()) ? c.duracaoSessao.trim() : '[duração]';
+      const valorTexto = formatarMoeda(parseFloat(c.valorSessao) || 0);
+      const formaPagamento = (c.formaPagamento && c.formaPagamento.trim()) ? c.formaPagamento.trim() : '[forma de pagamento]';
+      const condicaoPagamento = (c.condicaoPagamento && c.condicaoPagamento.trim()) ? c.condicaoPagamento.trim() : '[condição de pagamento]';
+      const antecedencia = (c.antecedenciaCancelamento && c.antecedenciaCancelamento.trim()) ? c.antecedenciaCancelamento.trim() : '[antecedência]';
+
+      const assinaturas = [{ nome: perfil.nome || '[seu nome]', sub: `CRP: ${perfil.crp || '[seu CRP]'} — CONTRATADO(A)` }];
+      if (contratanteIsResp) {
+        listaBase.forEach(r => assinaturas.push({ nome: r.nome, sub: `CONTRATANTE${r.parentesco ? ' — ' + r.parentesco : ''}` }));
+      } else {
+        assinaturas.push({ nome: pacNome, sub: 'CONTRATANTE' });
+      }
+
+      return {
+        titulo: 'Contrato de Prestação de Serviço',
+        subtitulo: 'Prestação de serviços psicoterapêuticos',
+        abertura,
+        clausulas: [
+          { titulo: '1. Do objeto', texto: `O presente contrato tem por objeto a prestação de serviços de psicoterapia individual, em abordagem psicanalítica, pelo(a) CONTRATADO(A) ao(à) paciente ${pacNome}, observados os princípios técnicos, éticos e científicos da profissão.` },
+          { titulo: '2. Do atendimento', texto: `Cada sessão terá duração de ${duracao}, com frequência ${freq}, realizada ${modalidadeTexto}. Os dias e horários serão previamente combinados entre as partes, podendo ser ajustados conforme a disponibilidade de agenda de ambos.` },
+          { titulo: '3. Da duração do acompanhamento', texto: 'A duração total do acompanhamento psicoterapêutico é variável e depende de fatores próprios de cada processo, não sendo possível determinar previamente prazo ou número total de sessões necessárias.' },
+          { titulo: '4. Dos honorários e da forma de pagamento', texto: `O valor de cada sessão é de ${valorTexto}. O pagamento será realizado ${condicaoPagamento}, por meio de ${formaPagamento}. Em observância ao art. 4º do Código de Ética Profissional do Psicólogo, o valor foi comunicado ${prep} ${denominacao} previamente ao início do atendimento, considerando a justa retribuição pelos serviços prestados.` },
+          { titulo: '5. Do reajuste de valores', texto: `Os valores estabelecidos neste contrato poderão ser reajustados anualmente, a cada 12 (doze) meses contados da data de assinatura deste instrumento, com base na variação acumulada do IPCA (Índice Nacional de Preços ao Consumidor Amplo) no período, ou outro índice que vier a substituí-lo. Qualquer reajuste será comunicado ${prep} ${denominacao} com antecedência mínima de 30 (trinta) dias, podendo as partes, de comum acordo, pactuar valor diverso do índice de referência.` },
+          { titulo: '6. Das desmarcações, faltas e remarcações', texto: `Cancelamentos ou desmarcações devem ser comunicados ao(à) CONTRATADO(A) com antecedência mínima de ${antecedencia}. Cancelamentos comunicados após esse prazo, bem como faltas não justificadas, serão cobrados integralmente, tendo em vista a reserva exclusiva do horário na agenda do(a) CONTRATADO(A). Remarcações estarão sujeitas à disponibilidade de agenda do(a) CONTRATADO(A). Em caso de cancelamento por iniciativa do(a) CONTRATADO(A), a sessão será reagendada sempre que possível; não sendo possível a remarcação, o valor da sessão não será cobrado.` },
+          { titulo: '7. Do sigilo profissional', texto: 'O conteúdo das sessões é protegido por sigilo profissional, nos termos dos artigos 9º e 10 do Código de Ética Profissional do Psicólogo. O sigilo poderá ser rompido nas hipóteses previstas em lei ou no Código de Ética, como risco iminente à vida ou à integridade física, determinação judicial ou dever legal de comunicação.' },
+          { titulo: '8. Do prontuário psicológico', texto: `Os registros do atendimento são mantidos em prontuário psicológico, conforme a Resolução CFP n° 001/2009, pelo prazo mínimo de 5 (cinco) anos, com acesso assegurado ${prep} ${denominacao} mediante solicitação formal.` },
+          { titulo: '9. Da proteção de dados pessoais (LGPD)', texto: 'Os dados pessoais coletados são utilizados exclusivamente para os fins do atendimento psicoterapêutico, armazenados de forma segura, e não são compartilhados com terceiros sem autorização, ressalvadas as exceções legais. É assegurado o direito de acesso, correção e exclusão dos dados, nos termos da Lei n° 13.709/2018 (Lei Geral de Proteção de Dados).' },
+          { titulo: '10. Da vigência e rescisão', texto: 'O presente contrato vigora por prazo indeterminado, enquanto durar o acompanhamento psicoterapêutico, podendo ser rescindido a qualquer momento por iniciativa de qualquer das partes, sem ônus ou penalidade, respeitado o pagamento das sessões já realizadas.' },
+        ],
+        fechamento: 'E, por estarem assim justos e acordados, firmam o presente instrumento em duas vias de igual teor e forma.',
+        localData: `${c.cidade || '[cidade]'}, ${c.dataDocumento ? formatarDataExtenso(c.dataDocumento) : '[data]'}.`,
+        assinaturas,
+      };
+    },
+  },
 };
