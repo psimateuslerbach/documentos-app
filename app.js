@@ -439,7 +439,7 @@ function renderPacienteForm(pacienteId) {
   if (editando) {
     actions.appendChild(el('button', {
       class: 'btn btn-danger', text: 'Excluir paciente', onclick: () => {
-        if (!confirm(`Excluir ${pac.nome}? Isso não apaga os documentos, anotações de prontuário e relatos de sessão já salvos, mas eles ficam sem paciente vinculado.`)) return;
+        if (!confirm(`Excluir ${pac.nome}? Isso não apaga os documentos, relatos de sessão e considerações clínicas pessoais já salvos, mas eles ficam sem paciente vinculado.`)) return;
         appData.pacientes = appData.pacientes.filter(p => p.id !== pac.id);
         persistir();
         renderTudo();
@@ -958,22 +958,27 @@ function criarAbaNotas(config) {
   return { render };
 }
 
+// Nomes de exibição pedidos pelo Mateus em 26/08/2026 (a aba que era
+// "Prontuário" virou "Relato de sessão"; a que era "Relatos de Sessão"
+// virou "Considerações clínicas pessoais") — dataKey/panelId/state
+// continuam com os nomes antigos de propósito, só o texto visível muda
+// (ver comentário mais detalhado junto de migrarAppData).
 const abaProntuario = criarAbaNotas({
   panelId: 'panel-prontuario', dataKey: 'prontuario', state: prontuarioState,
-  labelAba: 'Prontuário', labelPlural: 'Anotações', campoLabel: 'Anotação',
-  placeholder: 'Anotação de sessão... (texto livre)',
-  legendNovo: 'Nova anotação', legendEditando: d => `Editando anotação de ${d}`,
-  btnAdicionar: '+ Adicionar anotação', msgVazio: 'Nenhuma anotação ainda.',
-  msgConfirmExcluir: 'Excluir esta anotação?', tituloDocumento: 'Prontuário Psicológico',
+  labelAba: 'Relato de sessão', labelPlural: 'Relatos', campoLabel: 'Relato',
+  placeholder: 'Relato de sessão... (texto livre)',
+  legendNovo: 'Novo relato', legendEditando: d => `Editando relato de ${d}`,
+  btnAdicionar: '+ Adicionar relato', msgVazio: 'Nenhum relato ainda.',
+  msgConfirmExcluir: 'Excluir este relato?', tituloDocumento: 'Prontuário Psicológico',
 });
 
 const abaRelatos = criarAbaNotas({
   panelId: 'panel-relatos', dataKey: 'relatos', state: relatosState,
-  labelAba: 'Relatos de Sessão', labelPlural: 'Relatos', campoLabel: 'Relato',
-  placeholder: 'Relato pessoal da sessão... (texto livre, uso próprio)',
-  legendNovo: 'Novo relato', legendEditando: d => `Editando relato de ${d}`,
-  btnAdicionar: '+ Adicionar relato', msgVazio: 'Nenhum relato ainda.',
-  msgConfirmExcluir: 'Excluir este relato?', tituloDocumento: 'Relato de Sessão — Uso Pessoal',
+  labelAba: 'Considerações clínicas pessoais', labelPlural: 'Considerações', campoLabel: 'Consideração',
+  placeholder: 'Consideração clínica pessoal sobre a sessão... (texto livre, uso próprio)',
+  legendNovo: 'Nova consideração', legendEditando: d => `Editando consideração de ${d}`,
+  btnAdicionar: '+ Adicionar consideração', msgVazio: 'Nenhuma consideração ainda.',
+  msgConfirmExcluir: 'Excluir esta consideração?', tituloDocumento: 'Considerações Clínicas Pessoais',
   disclaimer: 'Documento de uso pessoal do profissional — registro de raciocínio clínico que não integra o prontuário psicológico do(a) paciente nem é de acesso automático a ele(a) ou a terceiros.',
 });
 
