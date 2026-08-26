@@ -15,7 +15,17 @@ function dadosPadrao() {
     pacientes: [],
     documentos: [],
     prontuario: [],
+    relatos: [],
   };
+}
+
+// Cofres criados antes de um campo novo existir (ex.: "relatos") não têm
+// essa chave no JSON salvo — sem isso, a aba correspondente quebra ao ler
+// `appData.relatos.filter(...)` de um vault antigo assim que ele desbloqueia.
+function migrarAppData(dados) {
+  const padrao = dadosPadrao();
+  Object.keys(padrao).forEach(k => { if (!(k in dados)) dados[k] = padrao[k]; });
+  return dados;
 }
 
 function pacienteDefault() {
@@ -166,7 +176,7 @@ function wireLockScreen() {
     try {
       const r = await desbloquearCofre(p);
       cryptoKey = r.key;
-      appData = r.dados;
+      appData = migrarAppData(r.dados);
       mostrarApp();
     } catch (e) {
       console.error('Falha ao desbloquear:', e);
@@ -287,6 +297,7 @@ function renderTudo() {
   renderPacientesTab();
   renderGerarTab();
   renderProntuarioTab();
+  renderRelatosTab();
   renderDocumentosTab();
 }
 
@@ -428,7 +439,7 @@ function renderPacienteForm(pacienteId) {
   if (editando) {
     actions.appendChild(el('button', {
       class: 'btn btn-danger', text: 'Excluir paciente', onclick: () => {
-        if (!confirm(`Excluir ${pac.nome}? Isso não apaga os documentos e anotações de prontuário já salvos, mas eles ficam sem paciente vinculado.`)) return;
+        if (!confirm(`Excluir ${pac.nome}? Isso não apaga os documentos, anotações de prontuário e relatos de sessão já salvos, mas eles ficam sem paciente vinculado.`)) return;
         appData.pacientes = appData.pacientes.filter(p => p.id !== pac.id);
         persistir();
         renderTudo();
@@ -756,9 +767,17 @@ function wireModal() {
 }
 
 // ============================================================
-// Aba Prontuário
+// Aba Prontuário + Aba Relatos de Sessão
 // ============================================================
+// As duas abas são estruturalmente idênticas (escolher paciente, anotações
+// datadas em texto livre, editar/excluir/imprimir) — só mudam os textos e
+// em qual array de appData gravam. Prontuário é o registro oficial, de
+// acesso do paciente; Relatos é o raciocínio clínico privado do Mateus
+// ("relato de sessão"/registro documental — ver guia de escrita abaixo),
+// nunca de acesso automático ao paciente. criarAbaNotas() generaliza as
+// duas em vez de duplicar ~150 linhas quase idênticas.
 let prontuarioState = { pacienteId: '', editandoId: '' };
+let relatosState = { pacienteId: '', editandoId: '' };
 
 // Esqueleto leve pra "evolução livre" (Res. CFP 09/2024) — texto corrido,
 // sem seções obrigatórias; o profissional apaga/reescreve como quiser.
@@ -793,145 +812,173 @@ function montarGuiaEvolucaoLivre(onInserir) {
   return box;
 }
 
-function renderProntuarioTab() {
-  const panel = document.getElementById('panel-prontuario');
-  panel.innerHTML = '';
-  panel.appendChild(el('div', { class: 'list-toolbar' }, [el('h2', { text: 'Prontuário' })]));
+function criarAbaNotas(config) {
+  const state = config.state;
 
-  if (appData.pacientes.length === 0) {
-    panel.appendChild(el('div', { class: 'empty-state', text: 'Cadastre um paciente primeiro, na aba Pacientes.' }));
-    return;
-  }
+  function render() {
+    const panel = document.getElementById(config.panelId);
+    panel.innerHTML = '';
+    panel.appendChild(el('div', { class: 'list-toolbar' }, [el('h2', { text: config.labelAba })]));
 
-  panel.appendChild(el('label', { text: 'Paciente' }));
-  const pacienteOptions = [['', 'Selecione...']].concat(
-    [...appData.pacientes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(p => [p.id, p.nome])
-  );
-  panel.appendChild(mkSelect(pacienteOptions, prontuarioState.pacienteId, v => { prontuarioState.pacienteId = v; prontuarioState.editandoId = ''; renderProntuarioTab(); }));
-
-  if (!prontuarioState.pacienteId) return;
-  const paciente = pacienteById(prontuarioState.pacienteId);
-  if (!paciente) { prontuarioState.pacienteId = ''; return; }
-
-  const notaEditando = appData.prontuario.find(n => n.id === prontuarioState.editandoId && n.pacienteId === paciente.id) || null;
-  if (prontuarioState.editandoId && !notaEditando) prontuarioState.editandoId = '';
-
-  const novaCard = el('div', { class: 'form-card' });
-  novaCard.style.margin = '18px 0';
-  const novaData = notaEditando
-    ? { data: notaEditando.data, texto: notaEditando.texto }
-    : { data: new Date().toISOString().slice(0, 10), texto: '' };
-
-  const fs = el('fieldset');
-  fs.appendChild(el('legend', { text: notaEditando ? `Editando anotação de ${formatarDataBR(notaEditando.data)}` : 'Nova anotação' }));
-
-  const ta = mkTextarea(novaData.texto, v => novaData.texto = v, 'Anotação de sessão... (texto livre)');
-  const guiaBox = montarGuiaEvolucaoLivre(() => {
-    if (ta.value.trim() && !confirm('Isso substitui o texto já escrito nesta anotação. Continuar?')) return;
-    novaData.texto = MODELO_EVOLUCAO_LIVRE;
-    ta.value = MODELO_EVOLUCAO_LIVRE;
-    ta.focus();
-  });
-  const guiaToggle = el('button', {
-    class: 'guia-toggle', text: 'Ver guia de escrita (evolução livre)',
-    onclick: () => {
-      guiaBox.hidden = !guiaBox.hidden;
-      guiaToggle.textContent = guiaBox.hidden ? 'Ver guia de escrita (evolução livre)' : 'Ocultar guia de escrita';
+    if (appData.pacientes.length === 0) {
+      panel.appendChild(el('div', { class: 'empty-state', text: 'Cadastre um paciente primeiro, na aba Pacientes.' }));
+      return;
     }
-  });
-  fs.appendChild(guiaToggle);
-  fs.appendChild(guiaBox);
-  fs.appendChild(field('Data', mkTextInput(novaData.data, v => novaData.data = v, { type: 'date' })));
-  fs.appendChild(field('Anotação', ta));
-  novaCard.appendChild(fs);
 
-  const botoesForm = [
-    el('button', {
-      class: 'btn btn-primary', text: notaEditando ? 'Salvar alterações' : '+ Adicionar anotação', onclick: () => {
-        if (!novaData.texto.trim()) { alert('Escreva alguma coisa antes de salvar.'); return; }
-        if (notaEditando) {
-          notaEditando.data = novaData.data;
-          notaEditando.texto = novaData.texto;
-          notaEditando.editadoEm = new Date().toISOString();
-          prontuarioState.editandoId = '';
-        } else {
-          appData.prontuario.push({ id: uid(), pacienteId: paciente.id, data: novaData.data, texto: novaData.texto, criadoEm: new Date().toISOString() });
-        }
-        persistir();
-        renderProntuarioTab();
+    panel.appendChild(el('label', { text: 'Paciente' }));
+    const pacienteOptions = [['', 'Selecione...']].concat(
+      [...appData.pacientes].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')).map(p => [p.id, p.nome])
+    );
+    panel.appendChild(mkSelect(pacienteOptions, state.pacienteId, v => { state.pacienteId = v; state.editandoId = ''; render(); }));
+
+    if (!state.pacienteId) return;
+    const paciente = pacienteById(state.pacienteId);
+    if (!paciente) { state.pacienteId = ''; return; }
+
+    const itemEditando = appData[config.dataKey].find(n => n.id === state.editandoId && n.pacienteId === paciente.id) || null;
+    if (state.editandoId && !itemEditando) state.editandoId = '';
+
+    const novaCard = el('div', { class: 'form-card' });
+    novaCard.style.margin = '18px 0';
+    const novoItem = itemEditando
+      ? { data: itemEditando.data, texto: itemEditando.texto }
+      : { data: new Date().toISOString().slice(0, 10), texto: '' };
+
+    const fs = el('fieldset');
+    fs.appendChild(el('legend', { text: itemEditando ? config.legendEditando(formatarDataBR(itemEditando.data)) : config.legendNovo }));
+
+    const ta = mkTextarea(novoItem.texto, v => novoItem.texto = v, config.placeholder);
+    const guiaBox = montarGuiaEvolucaoLivre(() => {
+      if (ta.value.trim() && !confirm('Isso substitui o texto já escrito. Continuar?')) return;
+      novoItem.texto = MODELO_EVOLUCAO_LIVRE;
+      ta.value = MODELO_EVOLUCAO_LIVRE;
+      ta.focus();
+    });
+    const guiaToggle = el('button', {
+      class: 'guia-toggle', text: 'Ver guia de escrita (evolução livre)',
+      onclick: () => {
+        guiaBox.hidden = !guiaBox.hidden;
+        guiaToggle.textContent = guiaBox.hidden ? 'Ver guia de escrita (evolução livre)' : 'Ocultar guia de escrita';
       }
-    })
-  ];
-  if (notaEditando) {
-    botoesForm.push(el('button', {
-      class: 'btn btn-secondary', text: 'Cancelar', onclick: () => { prontuarioState.editandoId = ''; renderProntuarioTab(); }
-    }));
+    });
+    fs.appendChild(guiaToggle);
+    fs.appendChild(guiaBox);
+    fs.appendChild(field('Data', mkTextInput(novoItem.data, v => novoItem.data = v, { type: 'date' })));
+    fs.appendChild(field(config.campoLabel, ta));
+    novaCard.appendChild(fs);
+
+    const botoesForm = [
+      el('button', {
+        class: 'btn btn-primary', text: itemEditando ? 'Salvar alterações' : config.btnAdicionar, onclick: () => {
+          if (!novoItem.texto.trim()) { alert('Escreva alguma coisa antes de salvar.'); return; }
+          if (itemEditando) {
+            itemEditando.data = novoItem.data;
+            itemEditando.texto = novoItem.texto;
+            itemEditando.editadoEm = new Date().toISOString();
+            state.editandoId = '';
+          } else {
+            appData[config.dataKey].push({ id: uid(), pacienteId: paciente.id, data: novoItem.data, texto: novoItem.texto, criadoEm: new Date().toISOString() });
+          }
+          persistir();
+          render();
+        }
+      })
+    ];
+    if (itemEditando) {
+      botoesForm.push(el('button', {
+        class: 'btn btn-secondary', text: 'Cancelar', onclick: () => { state.editandoId = ''; render(); }
+      }));
+    }
+    novaCard.appendChild(el('div', { class: 'form-actions' }, botoesForm));
+    panel.appendChild(novaCard);
+    if (itemEditando) novaCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const itens = appData[config.dataKey].filter(n => n.pacienteId === paciente.id).sort((a, b) => b.data.localeCompare(a.data) || b.criadoEm.localeCompare(a.criadoEm));
+
+    const toolbar = el('div', { class: 'list-toolbar' });
+    toolbar.appendChild(el('h2', { text: `${config.labelPlural} de ${paciente.nome}` }));
+    if (itens.length > 0) {
+      toolbar.appendChild(el('button', { class: 'btn btn-secondary', text: 'Exportar histórico completo', onclick: () => exportarHistorico(paciente, itens) }));
+    }
+    panel.appendChild(toolbar);
+
+    if (itens.length === 0) {
+      panel.appendChild(el('div', { class: 'empty-state', text: config.msgVazio }));
+      return;
+    }
+
+    const list = el('div', { class: 'card-list' });
+    itens.forEach(item => {
+      const card = el('div', { class: 'card' });
+      card.style.cursor = 'default';
+      const resumo = item.texto.length > 140 ? item.texto.slice(0, 140) + '…' : item.texto;
+      const tituloChildren = [formatarDataBR(item.data)];
+      if (item.editadoEm) tituloChildren.push(el('span', { class: 'edit-tag', text: ` · editado em ${formatarDataBR(item.editadoEm.slice(0, 10))}` }));
+      card.appendChild(el('div', { class: 'card-main' }, [
+        el('div', { class: 'card-title' }, tituloChildren),
+        el('div', { class: 'card-sub', text: resumo }),
+      ]));
+      const acoes = el('div', { style: 'display:flex; gap:6px; flex:0 0 auto;' });
+      acoes.appendChild(el('button', { class: 'btn btn-secondary btn-sm', text: 'Editar', onclick: () => { state.editandoId = item.id; render(); } }));
+      acoes.appendChild(el('button', { class: 'btn btn-secondary btn-sm', text: 'Imprimir', onclick: () => exportarUnico(paciente, item) }));
+      acoes.appendChild(el('button', { class: 'btn btn-danger btn-sm', text: 'Excluir', onclick: () => { if (!confirm(config.msgConfirmExcluir)) return; appData[config.dataKey] = appData[config.dataKey].filter(n => n.id !== item.id); persistir(); render(); } }));
+      card.appendChild(acoes);
+      list.appendChild(card);
+    });
+    panel.appendChild(list);
   }
-  novaCard.appendChild(el('div', { class: 'form-actions' }, botoesForm));
-  panel.appendChild(novaCard);
-  if (notaEditando) novaCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  const notas = appData.prontuario.filter(n => n.pacienteId === paciente.id).sort((a, b) => b.data.localeCompare(a.data) || b.criadoEm.localeCompare(a.criadoEm));
-
-  const toolbar = el('div', { class: 'list-toolbar' });
-  toolbar.appendChild(el('h2', { text: `Anotações de ${paciente.nome}` }));
-  if (notas.length > 0) {
-    toolbar.appendChild(el('button', { class: 'btn btn-secondary', text: 'Exportar histórico completo', onclick: () => exportarHistoricoProntuario(paciente, notas) }));
-  }
-  panel.appendChild(toolbar);
-
-  if (notas.length === 0) {
-    panel.appendChild(el('div', { class: 'empty-state', text: 'Nenhuma anotação ainda.' }));
-    return;
+  function exportarUnico(paciente, item) {
+    const corpo = config.disclaimer ? [config.disclaimer, formatarDataExtenso(item.data), item.texto] : [formatarDataExtenso(item.data), item.texto];
+    const conteudo = {
+      titulo: config.tituloDocumento,
+      subtitulo: paciente.nome,
+      corpo,
+      localData: '',
+      assinaturas: [{ nome: appData.perfil.nome, sub: `CRP: ${appData.perfil.crp}` }],
+    };
+    abrirModalDocumento('letterhead', conteudo);
   }
 
-  const list = el('div', { class: 'card-list' });
-  notas.forEach(nota => {
-    const card = el('div', { class: 'card' });
-    card.style.cursor = 'default';
-    const resumo = nota.texto.length > 140 ? nota.texto.slice(0, 140) + '…' : nota.texto;
-    const tituloChildren = [formatarDataBR(nota.data)];
-    if (nota.editadoEm) tituloChildren.push(el('span', { class: 'edit-tag', text: ` · editado em ${formatarDataBR(nota.editadoEm.slice(0, 10))}` }));
-    card.appendChild(el('div', { class: 'card-main' }, [
-      el('div', { class: 'card-title' }, tituloChildren),
-      el('div', { class: 'card-sub', text: resumo }),
-    ]));
-    const acoes = el('div', { style: 'display:flex; gap:6px; flex:0 0 auto;' });
-    acoes.appendChild(el('button', { class: 'btn btn-secondary btn-sm', text: 'Editar', onclick: () => { prontuarioState.editandoId = nota.id; renderProntuarioTab(); } }));
-    acoes.appendChild(el('button', { class: 'btn btn-secondary btn-sm', text: 'Imprimir', onclick: () => exportarNotaUnica(paciente, nota) }));
-    acoes.appendChild(el('button', { class: 'btn btn-danger btn-sm', text: 'Excluir', onclick: () => { if (!confirm('Excluir esta anotação?')) return; appData.prontuario = appData.prontuario.filter(n => n.id !== nota.id); persistir(); renderProntuarioTab(); } }));
-    card.appendChild(acoes);
-    list.appendChild(card);
-  });
-  panel.appendChild(list);
+  function exportarHistorico(paciente, itens) {
+    const ordenados = [...itens].sort((a, b) => a.data.localeCompare(b.data));
+    const corpo = [];
+    if (config.disclaimer) corpo.push(config.disclaimer);
+    ordenados.forEach(n => corpo.push(`${formatarDataExtenso(n.data)} — ${n.texto}`));
+    const conteudo = {
+      titulo: config.tituloDocumento,
+      subtitulo: paciente.nome,
+      corpo,
+      localData: `Documento gerado em ${formatarDataExtenso(new Date().toISOString().slice(0, 10))}.`,
+      assinaturas: [{ nome: appData.perfil.nome, sub: `CRP: ${appData.perfil.crp}` }],
+    };
+    abrirModalDocumento('letterhead', conteudo);
+  }
+
+  return { render };
 }
 
-function exportarNotaUnica(paciente, nota) {
-  const conteudo = {
-    titulo: 'Prontuário Psicológico',
-    subtitulo: paciente.nome,
-    corpo: [`${formatarDataExtenso(nota.data)}`, nota.texto],
-    localData: '',
-    assinaturas: [{ nome: appData.perfil.nome, sub: `CRP: ${appData.perfil.crp}` }],
-  };
-  abrirModalDocumento('letterhead', conteudo);
-}
+const abaProntuario = criarAbaNotas({
+  panelId: 'panel-prontuario', dataKey: 'prontuario', state: prontuarioState,
+  labelAba: 'Prontuário', labelPlural: 'Anotações', campoLabel: 'Anotação',
+  placeholder: 'Anotação de sessão... (texto livre)',
+  legendNovo: 'Nova anotação', legendEditando: d => `Editando anotação de ${d}`,
+  btnAdicionar: '+ Adicionar anotação', msgVazio: 'Nenhuma anotação ainda.',
+  msgConfirmExcluir: 'Excluir esta anotação?', tituloDocumento: 'Prontuário Psicológico',
+});
 
-function exportarHistoricoProntuario(paciente, notas) {
-  const ordenadas = [...notas].sort((a, b) => a.data.localeCompare(b.data));
-  const corpo = [];
-  ordenadas.forEach(n => {
-    corpo.push(`${formatarDataExtenso(n.data)} — ${n.texto}`);
-  });
-  const conteudo = {
-    titulo: 'Prontuário Psicológico',
-    subtitulo: paciente.nome,
-    corpo,
-    localData: `Documento gerado em ${formatarDataExtenso(new Date().toISOString().slice(0, 10))}.`,
-    assinaturas: [{ nome: appData.perfil.nome, sub: `CRP: ${appData.perfil.crp}` }],
-  };
-  abrirModalDocumento('letterhead', conteudo);
-}
+const abaRelatos = criarAbaNotas({
+  panelId: 'panel-relatos', dataKey: 'relatos', state: relatosState,
+  labelAba: 'Relatos de Sessão', labelPlural: 'Relatos', campoLabel: 'Relato',
+  placeholder: 'Relato pessoal da sessão... (texto livre, uso próprio)',
+  legendNovo: 'Novo relato', legendEditando: d => `Editando relato de ${d}`,
+  btnAdicionar: '+ Adicionar relato', msgVazio: 'Nenhum relato ainda.',
+  msgConfirmExcluir: 'Excluir este relato?', tituloDocumento: 'Relato de Sessão — Uso Pessoal',
+  disclaimer: 'Documento de uso pessoal do profissional — registro de raciocínio clínico que não integra o prontuário psicológico do(a) paciente nem é de acesso automático a ele(a) ou a terceiros.',
+});
+
+function renderProntuarioTab() { abaProntuario.render(); }
+function renderRelatosTab() { abaRelatos.render(); }
 
 // ============================================================
 // Aba Documentos Salvos
