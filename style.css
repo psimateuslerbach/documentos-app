@@ -645,10 +645,12 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
   .doc-page {
     box-shadow: none;
     width: 100%;
-    /* min-height continua 297mm (regra base) — remover isso fazia o fundo
-       colorido parar onde o texto termina em vez de preencher a folha
-       inteira; min-height é só um piso, então documentos mais longos que
-       uma página (o termo) continuam crescendo além de 297mm normalmente. */
+    /* min-height continua 289mm (regra base, ligeiramente menor que os
+       297mm reais do A4 — ver comentário na regra base) — remover isso
+       fazia o fundo colorido parar onde o texto termina em vez de
+       preencher a folha inteira; min-height é só um piso, então
+       documentos mais longos que uma página (o termo) continuam
+       crescendo normalmente além disso. */
     margin: 0;
     /* flex-direction:column não pagina de forma confiável entre folhas —
        vira bloco normal aqui, só na impressão (documentos de 1 página não
