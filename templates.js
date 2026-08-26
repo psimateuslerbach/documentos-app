@@ -242,8 +242,11 @@ const TIPOS_DOCUMENTO = {
       { id: 'frequencia', label: 'Frequência das sessões', tipo: 'text', fonte: 'paciente', default: 'semanal' },
       { id: 'duracaoSessao', label: 'Duração da sessão', tipo: 'text', fonte: 'paciente', default: 'até 50 minutos' },
       { id: 'valorSessao', label: 'Valor por sessão (R$)', tipo: 'number', fonte: 'paciente', default: 0 },
+      { id: 'estruturaPagamento', label: 'Estrutura de pagamento', tipo: 'select', fonte: 'doc', default: 'mensal', opcoes: [['mensal', 'Mensal (por sessões realizadas)'], ['pacote', 'Pacote de sessões (pago antecipadamente)']] },
+      { id: 'condicaoPagamento', label: 'Prazo de pagamento', tipo: 'select', fonte: 'doc', default: 'fim_mes', dependeDe: 'estruturaPagamento', dependeValor: 'mensal', opcoes: [['sessao', 'A cada sessão realizada'], ['fim_mes', 'Ao final de cada mês'], ['quinto_util', 'Até o 5º dia útil do mês subsequente']] },
+      { id: 'pacoteSessoes', label: 'Nº de sessões no pacote', tipo: 'number', fonte: 'doc', default: 4, dependeDe: 'estruturaPagamento', dependeValor: 'pacote' },
+      { id: 'pacoteValor', label: 'Valor total do pacote (R$)', tipo: 'number', fonte: 'doc', default: 0, dependeDe: 'estruturaPagamento', dependeValor: 'pacote' },
       { id: 'formaPagamento', label: 'Forma de pagamento', tipo: 'text', fonte: 'doc', default: 'Pix ou transferência bancária' },
-      { id: 'condicaoPagamento', label: 'Quando o pagamento é feito', tipo: 'text', fonte: 'doc', default: 'ao final de cada mês, referente às sessões realizadas no período' },
       { id: 'antecedenciaRemarcacao', label: 'Antecedência mínima p/ remarcação', tipo: 'text', fonte: 'doc', default: 'uma semana' },
       { id: 'cidade', label: 'Cidade', tipo: 'text', fonte: 'paciente', default: 'Brasília' },
       { id: 'dataDocumento', label: 'Data do contrato', tipo: 'date', fonte: 'doc', default: () => new Date().toISOString().slice(0, 10) },
@@ -284,8 +287,23 @@ const TIPOS_DOCUMENTO = {
       const duracao = (c.duracaoSessao && c.duracaoSessao.trim()) ? c.duracaoSessao.trim() : '[duração]';
       const valorTexto = formatarMoeda(parseFloat(c.valorSessao) || 0);
       const formaPagamento = (c.formaPagamento && c.formaPagamento.trim()) ? c.formaPagamento.trim() : '[forma de pagamento]';
-      const condicaoPagamento = (c.condicaoPagamento && c.condicaoPagamento.trim()) ? c.condicaoPagamento.trim() : '[condição de pagamento]';
       const antecedencia = (c.antecedenciaRemarcacao && c.antecedenciaRemarcacao.trim()) ? c.antecedenciaRemarcacao.trim() : '[antecedência]';
+
+      const CONDICAO_PAGAMENTO_TEXTO = {
+        sessao: 'a cada sessão realizada',
+        fim_mes: 'ao final de cada mês, referente às sessões realizadas no período',
+        quinto_util: 'até o 5º (quinto) dia útil do mês subsequente às sessões realizadas',
+      };
+      const isPacote = c.estruturaPagamento === 'pacote';
+      let honorariosTexto;
+      if (isPacote) {
+        const numSessoes = parseInt(c.pacoteSessoes, 10) || 0;
+        const valorPacoteTexto = formatarMoeda(parseFloat(c.pacoteValor) || 0);
+        honorariosTexto = `O atendimento poderá ser contratado por pacote de ${numSessoes} sessões, no valor total de ${valorPacoteTexto}, pago antecipadamente por meio de ${formaPagamento}. O valor unitário de referência por sessão é de ${valorTexto}. Em observância ao art. 4º do Código de Ética Profissional do Psicólogo, o valor foi comunicado ${prep} ${denominacao} previamente ao início do atendimento, considerando a justa retribuição pelos serviços prestados.`;
+      } else {
+        const condicaoTexto = CONDICAO_PAGAMENTO_TEXTO[c.condicaoPagamento] || '[condição de pagamento]';
+        honorariosTexto = `O valor de cada sessão é de ${valorTexto}. O pagamento será realizado ${condicaoTexto}, por meio de ${formaPagamento}. Em observância ao art. 4º do Código de Ética Profissional do Psicólogo, o valor foi comunicado ${prep} ${denominacao} previamente ao início do atendimento, considerando a justa retribuição pelos serviços prestados.`;
+      }
 
       const assinaturas = [{ nome: perfil.nome || '[seu nome]', sub: `CRP: ${perfil.crp || '[seu CRP]'} — CONTRATADO(A)` }];
       if (contratanteIsResp) {
@@ -302,7 +320,7 @@ const TIPOS_DOCUMENTO = {
           { titulo: '1. Do objeto', texto: `O presente contrato tem por objeto a prestação de serviços de psicoterapia individual, em abordagem psicanalítica, pelo(a) CONTRATADO(A) ao(à) paciente ${pacNome}, observados os princípios técnicos, éticos e científicos da profissão.` },
           { titulo: '2. Do atendimento', texto: `Cada sessão terá duração de ${duracao}, com frequência ${freq}, realizada ${modalidadeTexto}. Os dias e horários serão previamente combinados entre as partes, podendo ser ajustados conforme a disponibilidade de agenda de ambos.` },
           { titulo: '3. Da duração do acompanhamento', texto: 'A duração total do acompanhamento psicoterapêutico é variável e depende de fatores próprios de cada processo, não sendo possível determinar previamente prazo ou número total de sessões necessárias.' },
-          { titulo: '4. Dos honorários e da forma de pagamento', texto: `O valor de cada sessão é de ${valorTexto}. O pagamento será realizado ${condicaoPagamento}, por meio de ${formaPagamento}. Em observância ao art. 4º do Código de Ética Profissional do Psicólogo, o valor foi comunicado ${prep} ${denominacao} previamente ao início do atendimento, considerando a justa retribuição pelos serviços prestados.` },
+          { titulo: '4. Dos honorários e da forma de pagamento', texto: honorariosTexto },
           { titulo: '5. Do reajuste de valores', texto: `Os valores estabelecidos neste contrato poderão ser reajustados semestralmente, a cada 6 (seis) meses contados da data de assinatura deste instrumento, com base na variação acumulada do IPCA (Índice Nacional de Preços ao Consumidor Amplo) no período, ou outro índice que vier a substituí-lo. Qualquer reajuste será comunicado ${prep} ${denominacao} com antecedência mínima de 30 (trinta) dias, podendo as partes, de comum acordo, pactuar valor diverso do índice de referência.` },
           { titulo: '6. Das faltas e remarcações', texto: `Remarcações devem ser comunicadas ao(à) CONTRATADO(A) com antecedência mínima de ${antecedencia}. Remarcações comunicadas fora desse prazo estarão sujeitas à disponibilidade de agenda do(a) CONTRATADO(A), podendo não ser possível a reposição da sessão. Faltas são sempre cobradas integralmente, tendo em vista a reserva exclusiva do horário na agenda do(a) CONTRATADO(A). Em caso de cancelamento por iniciativa do(a) CONTRATADO(A), a sessão será reagendada sempre que possível; não sendo possível a remarcação, o valor da sessão não será cobrado.` },
           { titulo: '7. Do sigilo profissional', texto: 'O conteúdo das sessões é protegido por sigilo profissional, nos termos dos artigos 9º e 10 do Código de Ética Profissional do Psicólogo. O sigilo poderá ser rompido nas hipóteses previstas em lei ou no Código de Ética, como risco iminente à vida ou à integridade física, determinação judicial ou dever legal de comunicação.' },

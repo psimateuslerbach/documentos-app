@@ -560,7 +560,9 @@ function renderCamposDinamicos(container, camposSpec, camposState, onChange) {
     camposSpec.forEach(campo => {
       if (!campo.dependeDe) return;
       const wrap = inputsPorId[campo.id + '__wrap'];
-      if (wrap) wrap.hidden = !camposState[campo.dependeDe];
+      if (!wrap) return;
+      const valorAtual = camposState[campo.dependeDe];
+      wrap.hidden = campo.dependeValor !== undefined ? (valorAtual !== campo.dependeValor) : !valorAtual;
     });
   }
 
@@ -589,6 +591,8 @@ function renderCamposDinamicos(container, camposSpec, camposState, onChange) {
       inputEl = null;
     } else if (campo.tipo === 'modalidade') {
       inputEl = mkSelect([['presencial', 'Presencial'], ['online', 'Online (telepsicologia)']], camposState[campo.id], v => { camposState[campo.id] = v; onChange(); });
+    } else if (campo.tipo === 'select') {
+      inputEl = mkSelect(campo.opcoes, camposState[campo.id], v => { camposState[campo.id] = v; atualizarVisibilidade(); onChange(); });
     } else if (campo.tipo === 'lista-data') {
       inputEl = null;
       const list = el('div');
