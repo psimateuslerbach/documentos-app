@@ -1,30 +1,6 @@
-/* Fonte oficial da marca (Apresentação-Logo-Mateus-Psico.pdf), servida via
-   jsDelivr direto do repositório open-source (SIL OFL) — só usada nos
-   documentos gerados (.doc-page); a interface do app continua em Poppins. */
-@font-face {
-  font-family: 'Madhuban';
-  font-weight: 400;
-  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-Regular.ttf') format('truetype');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Madhuban';
-  font-weight: 500;
-  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-Medium.ttf') format('truetype');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Madhuban';
-  font-weight: 600;
-  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-SemiBold.ttf') format('truetype');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Madhuban';
-  font-weight: 700;
-  src: url('https://cdn.jsdelivr.net/gh/magictype/Madhuban@main/fonts/ttf/Madhuban-Bold.ttf') format('truetype');
-  font-display: swap;
-}
+/* Fonte dos documentos: Times New Roman 12 (pedido do Mateus em
+   26/08/2026, substituindo a fonte da marca — Madhuban — que era usada
+   antes aqui). A interface do app continua em Poppins, ver mais abaixo. */
 
 :root {
   --teal: #0c4e68;
@@ -464,7 +440,7 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
   box-shadow: var(--shadow-pop);
   display: flex;
   flex-direction: column;
-  font-family: 'Madhuban', 'Poppins', 'Century Gothic', Futura, Avenir, 'Segoe UI', sans-serif;
+  font-family: 'Times New Roman', Times, serif;
   position: relative;
 }
 
@@ -505,8 +481,8 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
 }
 .doc-page.shell-teal .logo-block img { width: 100%; display: block; }
 .doc-page.shell-teal .doc-title { font-size: 30pt; font-weight: 700; margin: 0 0 10mm; }
-.doc-page.shell-teal .corpo p { font-size: 12.5pt; font-weight: 500; line-height: 1.65; margin: 0; }
-.doc-page.shell-teal .local-data { font-size: 12.5pt; font-weight: 500; margin: 8mm 0 0; }
+.doc-page.shell-teal .corpo p { font-size: 12pt; font-weight: 400; line-height: 1.65; margin: 0; }
+.doc-page.shell-teal .local-data { font-size: 12pt; font-weight: 400; margin: 8mm 0 0; }
 .doc-page.shell-teal .signature-area { margin-top: auto; padding-top: 30mm; text-align: center; }
 .doc-page.shell-teal .sig-block { width: 90mm; margin: 0 auto; }
 .doc-page.shell-teal .sig-block .line { border-top: 1.3pt solid currentColor; margin: 0 0 5mm; }
@@ -532,15 +508,15 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
   text-align: center; margin: 0 0 8mm;
 }
 .doc-page.shell-letterhead .corpo p, .doc-page.shell-letterhead .abertura {
-  font-size: 11pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
+  font-size: 12pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
 }
 .doc-page.shell-letterhead .corpo p { white-space: pre-line; }
 .doc-page.shell-letterhead .clause { break-inside: avoid; margin-bottom: 2mm; }
 .doc-page.shell-letterhead .clause .clause-title {
-  font-weight: 700; color: var(--teal); font-size: 10.8pt; margin: 0 0 1.5mm;
+  font-weight: 700; color: var(--teal); font-size: 12pt; margin: 0 0 1.5mm;
 }
-.doc-page.shell-letterhead .clause p { font-size: 10.8pt; line-height: 1.65; margin: 0; text-align: justify; }
-.doc-page.shell-letterhead .local-data { margin-top: 4mm; font-size: 11pt; }
+.doc-page.shell-letterhead .clause p { font-size: 12pt; line-height: 1.65; margin: 0; text-align: justify; }
+.doc-page.shell-letterhead .local-data { margin-top: 4mm; font-size: 12pt; }
 .doc-page.shell-letterhead .signature-area {
   margin-top: auto; padding-top: 18mm;
   display: flex; justify-content: center; flex-wrap: wrap; gap: 8mm 10mm;
@@ -575,15 +551,15 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
   text-align: center; margin: 0 0 8mm;
 }
 .doc-page.shell-minimal .corpo p, .doc-page.shell-minimal .abertura {
-  font-size: 11pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
+  font-size: 12pt; font-weight: 400; line-height: 1.72; margin: 0 0 5mm; text-align: justify;
 }
 .doc-page.shell-minimal .corpo p { white-space: pre-line; }
 .doc-page.shell-minimal .clause { break-inside: avoid; margin-bottom: 2mm; }
 .doc-page.shell-minimal .clause .clause-title {
-  font-weight: 700; color: var(--teal); font-size: 10.8pt; margin: 0 0 1.5mm;
+  font-weight: 700; color: var(--teal); font-size: 12pt; margin: 0 0 1.5mm;
 }
-.doc-page.shell-minimal .clause p { font-size: 10.8pt; line-height: 1.65; margin: 0; text-align: justify; }
-.doc-page.shell-minimal .local-data { margin-top: 4mm; font-size: 11pt; }
+.doc-page.shell-minimal .clause p { font-size: 12pt; line-height: 1.65; margin: 0; text-align: justify; }
+.doc-page.shell-minimal .local-data { margin-top: 4mm; font-size: 12pt; }
 .doc-page.shell-minimal .signature-area {
   margin-top: auto; padding-top: 18mm;
   display: flex; justify-content: center; flex-wrap: wrap; gap: 8mm 10mm;
@@ -601,9 +577,9 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--b
   font-size: 30pt; text-align: left; text-transform: none; letter-spacing: normal;
 }
 .doc-page.shell-minimal.from-teal .corpo p {
-  font-size: 12.5pt; font-weight: 500; line-height: 1.65; text-align: left;
+  font-size: 12pt; font-weight: 400; line-height: 1.65; text-align: left;
 }
-.doc-page.shell-minimal.from-teal .local-data { font-size: 12.5pt; font-weight: 500; }
+.doc-page.shell-minimal.from-teal .local-data { font-size: 12pt; font-weight: 400; }
 .doc-page.shell-minimal.from-teal .sig-block { width: 90mm; }
 .doc-page.shell-minimal.from-teal .sig-block .sname { font-size: 12pt; }
 .doc-page.shell-minimal.from-teal .sig-block .ssub { font-weight: 400; font-size: 11pt; opacity: .85; }
